@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>p</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.0.js">
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $("#btnStart").click(function () {
+
+
+                var txtRedId = $('#txtRedId').val();
+
+                alert('开抢,redId=' + txtRedId)
+                //模拟2000个异步请求，进行并发
+                var max = 2000;
+                for (var i = 1; i <= max; i++) {
+                    //jQuery的post请求，请注意这是异步请求
+                    $.post({
+                        //请求抢id为1的红包
+                        //根据自己请求修改对应的url和大红包编号
+                        url: "/lipp/grabRp?redPacketId=" + txtRedId + "&userId=" + i,
+                        //成功后的方法
+                        success: function (result) {
+                        }
+                    });
+                }
+
+
+            });
+        });
+    </script>
+
+
+</head>
+<body>
+
+<input type="text" id="txtRedId">
+<input type="button" value="开抢" id="btnStart"/>
+</body>
+</html>

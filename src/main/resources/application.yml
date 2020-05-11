@@ -1,0 +1,52 @@
+server:
+  port: 9998
+  servlet-path: /lipp  #请求的servlet路径，如：http://localhost:9998/lipp/getStrById/12322
+mybatis:
+  mapper-locations: classpath:mapper/*Mapper.xml #mybatis-mapper的配置文件
+  config-location: classpath:mapper/config/mybatis-config.xml #mybatis 配置文件
+  type-aliases-package: cn.lip.mybatis.bean # 定义包下类的别名
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/test
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: root
+    type: com.alibaba.druid.pool.DruidDataSource
+  redis:
+    url: 192.168.25.128
+    port: 6380
+  resources:
+    # 添加可以访问的目录 ，配置了该项，默认的/META-INF/resources、/resources、/public、/static下面的文件都不能正常访问了；配置了当前项，路径http://localhost:9998/lipp/d.html就可以被访问了；
+    static-locations: classpath:/deflp/,classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/
+#context:
+#  initializer:
+banner:
+  image:
+    location: banner.gif
+    height: 100
+    width: 100
+#  image:
+#    location: banner.jpg
+#    classes: cn.lip.mybatis.application.MyApplicationContextInitializer
+
+#  private String lastName;
+#  private Integer age;
+#  private Boolean boss;
+#  private Date birth;
+#  private Map<String, Object> maps;
+#  private List<Object> list;
+#  private Dog dog;
+per:
+  lastName: lastName-value
+  age: 30
+  boss: false
+  birth: 2017/2/8
+  dog:
+    age: 3
+    name: dcsssx
+  list:
+    - a
+    - b
+    - cc
+    - d
+debug: false # 查看哪些自动配置类生效
