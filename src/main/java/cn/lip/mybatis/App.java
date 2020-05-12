@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +34,7 @@ import java.util.Map;
 @SpringBootApplication
 @ComponentScan(excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {MyCommandLineRunner.class, MyApplicationRunner.class})})
 @RestController
+@EnableAsync //开启异步调用
 public class App {
 
 
@@ -79,7 +81,8 @@ public class App {
         //int result = userRedPacketService.grabRedPacket(redPacketId, userId);
         //int result = userRedPacketService.grabRedPacketForVersion(redPacketId, userId);
         //int result = userRedPacketService.grabRedPacketForVersionContinueByTimestamp(redPacketId, userId);
-        int result = userRedPacketService.grabRedPacketForVersionContinueByTimes(redPacketId, userId);
+        //int result = userRedPacketService.grabRedPacketForVersionContinueByTimes(redPacketId, userId);
+        Long result = userRedPacketService.grapRedPacketByRedis(redPacketId, userId);
         Map<String,Object> retMap=new HashMap<>();
         boolean flag = result > 0;
         retMap.put("success", flag);

@@ -1,0 +1,47 @@
+红包表/用户抢红包表
+
+/*==============================================================*/
+/* Table: 红包表                                        */
+/*==============================================================*/
+create table T_RED_PACKET
+(
+   id                   int(12)                        not null auto_increment,
+   user_id              int(12)                        not null,
+   amount               decimal(16,2)                  not null,
+   send_date            timestamp                      not null,
+   total                int(12)                        not null,
+   unit_amount          decimal(12)                    not null,
+   stock                int(12)                        not null,
+   version              int(12) default 0              not null,
+   note                 varchar(256)                    null,
+   primary key clustered (id)
+);
+
+/*==============================================================*/
+/* Table: 用户抢红包表                                                */
+/*==============================================================*/
+create table T_USER_RED_PACKET
+(
+   id                   int(12)                        not null auto_increment,
+   red_packet_id        int(12)                        not null,
+   user_id              int(12)                        not null,
+   amount               decimal(16,2)                  not null,
+   grab_time            timestamp                      not null,
+   note                 varchar(256)                   null,
+    primary key clustered (id)
+);
+
+
+小结：
+    init spring boot project and grab red packet四种测试：
+    1.正常抢红包（只在隔离级别为读已提交，在数据库层面没有锁等别的任何操作）；
+    2.基于1的情况下，基于innodb的主键查询的for update 行锁（也叫悲观锁）；
+    3.基于1的情况下，采用乐观锁（存在丢失更新，引入重入机制，重入的两种方法：时间戳、尝试多次），
+        【乐观锁的优点】减少cpu的切换，从而增加cpu的性能；
+        【乐观锁的缺点】导致大量sql被执行；
+        对于重入机制的个人分析：对于时间戳来说，如果尝试时间断了，也可能继续存在丢失更新的情况，经过测试，当然此情况应该也存在尝试多次这种方法；
+
+        对于乐观锁来说，高并发访问量特别大，个人觉得重入都会失败，那如何解决呢？也就是在重入的情况下还存在丢失更新，如何解决？
+        在多线程下，如果操作一个共享数据，只要能操作就行，比如一张票，一万个人去买，不能第一个人见了其他人都看不见了，对于乐观锁来说，多个线程下不用重入机制也可以，只要有一个人买到就行，当然理想情况下，还是可能卖不出去这一张票，
+        个人感觉重入机制，只是增加成功的几率而已，从某些文章中是这样说的，乐观锁解决高并发，方法只有一个：队列；
+

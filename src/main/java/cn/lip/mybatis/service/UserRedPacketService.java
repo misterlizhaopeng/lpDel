@@ -14,4 +14,5 @@ public interface UserRedPacketService {
 	public int grabRedPacketForVersion(Long redPacketId, Long userId);
 	public int grabRedPacketForVersionContinueByTimestamp(Long redPacketId, Long userId);
 	public int grabRedPacketForVersionContinueByTimes(Long redPacketId, Long userId);
+	public Long grapRedPacketByRedis(Long redPacketId, Long userId);
 }
