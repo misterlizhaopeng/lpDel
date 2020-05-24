@@ -6,8 +6,12 @@
 	</select>
 
 <!--<select id="getStudentByIdAndName" resultType="stus" databaseId="mysql">
+select id,name,age from student where id = #{id} and name=#{name}
+
+ 使用原生sql
+select id,name,age from student where id = '${id}' and name='${name}'
 -->
-	<select id="getStudentByIdAndName" resultType="stus">
-		select id,name,age from student where id = #{id} and name=#{name}
+	<select id="getStudentByIdAndName" resultType="stus" statementType="PREPARED">
+		 select id,name,age from student where id = #{id} and name=#{name}
 	  </select>
 </mapper>

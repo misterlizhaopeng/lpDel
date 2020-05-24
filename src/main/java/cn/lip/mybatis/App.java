@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Hello world!
@@ -69,8 +72,30 @@ public class App {
     @GetMapping("/getStrById/{id}")
     public String getStrById(@PathVariable("id") String id) {
 
-        Student student = userService.getStudentByIdAndName(2, "lp");
-        System.out.println(student);
+        int i=30;//000
+        //CountDownLatch countDownLatch=new CountDownLatch(i);
+//        ExecutorService executorService= Executors.newFixedThreadPool(i);
+        for (int j = 0; j < i; j++) {
+
+//            executorService.execute(()->{
+//                Student student = userService.getStudentByIdAndName(2, "lp");
+//                System.out.println(student);
+//                countDownLatch.countDown();
+//            });
+
+            new Thread(()->{
+                Student student = userService.getStudentByIdAndName(2, "lp");
+                System.out.println(student);
+                //countDownLatch.countDown();
+            }).start();
+        }
+
+//        try {
+//            countDownLatch.await();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
 
         return "id=" + id;
     }
