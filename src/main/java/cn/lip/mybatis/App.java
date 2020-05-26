@@ -7,9 +7,13 @@ import cn.lip.mybatis.bean.ComponentTest;
 import cn.lip.mybatis.bean.Student;
 import cn.lip.mybatis.bean.TbUser;
 import cn.lip.mybatis.listener.MyAppEvent;
+import cn.lip.mybatis.service.RedisLockService;
 import cn.lip.mybatis.service.UserRedPacketService;
 import cn.lip.mybatis.service.UserService;
+import org.redisson.Redisson;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
@@ -17,6 +21,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -72,7 +77,7 @@ public class App {
     @GetMapping("/getStrById/{id}")
     public String getStrById(@PathVariable("id") String id) {
 
-        int i=30;//000
+        int i = 30;//000
         //CountDownLatch countDownLatch=new CountDownLatch(i);
 //        ExecutorService executorService= Executors.newFixedThreadPool(i);
         for (int j = 0; j < i; j++) {
@@ -83,7 +88,7 @@ public class App {
 //                countDownLatch.countDown();
 //            });
 
-            new Thread(()->{
+            new Thread(() -> {
                 Student student = userService.getStudentByIdAndName(2, "lp");
                 System.out.println(student);
                 //countDownLatch.countDown();
@@ -102,17 +107,101 @@ public class App {
 
 
     @PostMapping("/grabRp")
-    public Map<String,Object> postGrabRedPacket(Long redPacketId, Long userId) {
+    public Map<String, Object> postGrabRedPacket(Long redPacketId, Long userId) {
         //int result = userRedPacketService.grabRedPacket(redPacketId, userId);
         //int result = userRedPacketService.grabRedPacketForVersion(redPacketId, userId);
         //int result = userRedPacketService.grabRedPacketForVersionContinueByTimestamp(redPacketId, userId);
         //int result = userRedPacketService.grabRedPacketForVersionContinueByTimes(redPacketId, userId);
         Long result = userRedPacketService.grapRedPacketByRedis(redPacketId, userId);
-        Map<String,Object> retMap=new HashMap<>();
+        Map<String, Object> retMap = new HashMap<>();
         boolean flag = result > 0;
         retMap.put("success", flag);
         retMap.put("message", flag ? "抢红包成功" : "抢红包失败");
         return retMap;
+    }
+
+
+    @Value("${server.port}")
+    private String port;
+
+    private static Integer testData = 10;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RedisLockService redisLockService;
+
+    @Autowired
+    private Redisson redisson;
+
+
+    // redisson 测试分布式锁；
+    // 实现步骤：1.pom.xml 2.配置bean 3.当前代码
+    @GetMapping("/testLockByRedisson")
+    public String testLockByRedisson(String id) {
+
+        String lockKey = "productKeyByRedisson";
+        RLock rlock = redisson.getLock(lockKey);
+        try {
+            rlock.lock();
+            Object stock = redisTemplate.opsForValue().get("stock");
+            if (stock != null && Integer.parseInt(stock.toString()) > 0) {
+                int _stock = 0;
+                _stock = Integer.parseInt(stock.toString());
+                _stock--;
+                redisTemplate.opsForValue().set("stock", String.valueOf(_stock));
+                System.out.println("当前商品库存还剩：" + _stock);
+            } else {
+                System.out.println("当前商品库存不存在");
+            }
+
+            rlock.unlock();
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+        return "no";
+    }
+
+    @GetMapping("/testLock")
+    public String testLock(String id) {
+
+        //        Object obj = new Object();
+        //        synchronized (obj) {
+        //            if (testData <= 0) {
+        //                return "消费完成";
+        //            }
+        //
+        //            testData--;
+        //            System.out.println("---------------->当前商品剩余的数量：" + testData + "，当前请求id="+id+",当前端口："+port);
+        //
+        //        }
+
+        long timeout = 30 * 1000;
+        long val = System.currentTimeMillis() + timeout;
+        String lockK = "productKey";
+        try {
+            if (!redisLockService.lock(lockK, String.valueOf(val))) {
+                //System.out.println("并发太多了");
+                return "并发太多了";
+            }
+
+            Object stock = redisTemplate.opsForValue().get("stock");
+            if (stock != null && Integer.parseInt(stock.toString()) > 0) {
+                int _stock = 0;
+                _stock = Integer.parseInt(stock.toString());
+                _stock--;
+                redisTemplate.opsForValue().set("stock", String.valueOf(_stock));
+                System.out.println("当前商品库存还剩：" + _stock);
+            } else {
+                System.out.println("当前商品库存不存在");
+            }
+
+            redisLockService.unlock(lockK, String.valueOf(val));
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+        return "no";
     }
 
 

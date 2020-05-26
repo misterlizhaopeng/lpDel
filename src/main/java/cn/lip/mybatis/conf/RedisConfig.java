@@ -1,5 +1,8 @@
 package cn.lip.mybatis.conf;
 
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -42,5 +45,19 @@ public class RedisConfig {
         redisTemplate.setHashKeySerializer(stringRedisSerializer);
         redisTemplate.setHashValueSerializer(jdkSerializationRedisSerializer);
         return redisTemplate;
+    }
+
+
+    @Bean
+    public Redisson redissonClient() {
+        Config config = new Config();
+
+        config.useSingleServer().setPassword("lp").setAddress("redis://192.168.25.140:6380").setDatabase(0);
+//        config.useClusterServers()
+//                .setScanInterval(2000)
+//                .addNodeAddress("redis://192.168.25.140:7001", "redis://192.168.25.140:7001")
+//                .addNodeAddress("redis://192.168.25.140:7001");
+
+        return (Redisson)Redisson.create(config);
     }
 }

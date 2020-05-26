@@ -31,6 +31,31 @@
 
 
             });
+
+            $('#btnLock').click(function () {
+                var max = 2000;
+                for (var i = 1; i <= max; i++) {
+                    $.get("/lipp/testLock?id=" + i, function (d,status) {});
+                }
+
+            });
+
+            $('#testLockByRedisson').click(function () {
+                var max = 2000;
+                for (var i = 1; i <= max; i++) {
+                    $.get("/lipp/testLockByRedisson?id=" + i, function (d,status) {});
+                }
+
+            });
+
+
+            $('#btnReqNginx').click(function () {
+                var max = 2000;
+                for (var i = 1; i <= max; i++) {
+                    $.get("http://192.168.25.140:80/", function (d,status) {});
+                }
+
+            });
         });
     </script>
 
@@ -40,5 +65,10 @@
 
 <input type="text" id="txtRedId">
 <input type="button" value="开抢" id="btnStart"/>
+
+
+<input type="button" value="测试锁" id="btnLock"/>
+<input type="button" value="测试redisson锁" id="testLockByRedisson"/>
+<input type="button" value="测试nginx" id="btnReqNginx"/>
 </body>
 </html>
