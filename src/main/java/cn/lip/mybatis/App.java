@@ -76,30 +76,36 @@ public class App {
 
     @GetMapping("/getStrById/{id}")
     public String getStrById(@PathVariable("id") String id) {
+        int i = 20;//000
+        if (id.equals("1")) {
+            for (int j = 0; j < i; j++) {
+                new Thread(() -> {
+                    Student student = null;
+                    try {
+                        student = userService.getStudentByIdAndName(2, "lp");
+                    } catch (Exception e) {
 
-        int i = 30;//000
-        //CountDownLatch countDownLatch=new CountDownLatch(i);
-//        ExecutorService executorService= Executors.newFixedThreadPool(i);
-        for (int j = 0; j < i; j++) {
-
-//            executorService.execute(()->{
-//                Student student = userService.getStudentByIdAndName(2, "lp");
-//                System.out.println(student);
-//                countDownLatch.countDown();
-//            });
-
-            new Thread(() -> {
-                Student student = userService.getStudentByIdAndName(2, "lp");
-                System.out.println(student);
-                //countDownLatch.countDown();
-            }).start();
+                        e.printStackTrace();
+                    }
+                    System.out.println(student);
+                }).start();
+            }
+        }else if(id.equals("2")) {
+            for (int j = 0; j < i; j++) {
+                new Thread(() -> {
+                    Student student = userService.getStudentByIdAndName_lockByRedisson(2, "lp");
+                    System.out.println(student);
+                }).start();
+            }
+        }else {
+            Student student = null;
+            try {
+                student = userService.getStudentByIdAndName(2, "lp");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println(student);
         }
-
-//        try {
-//            countDownLatch.await();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
 
 
         return "id=" + id;

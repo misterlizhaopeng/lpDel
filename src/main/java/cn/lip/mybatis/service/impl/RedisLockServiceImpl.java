@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
  *
  *      2.当前redis服务如果采用哨兵模式，线程A成功把锁在master redis服务上面产生，并在上面设置好锁之后，同步到slave redis服务器之前，master宕机了，
  *          这时slave被选为master，另一个线程B再加锁的时候有成功获取锁，此时线程A还没有结束业务逻辑，就会造成锁被获取多次的问题；
+ *          这个问题，在redisson解决方案下面针对每一个机器添加一个相同的锁即可；
  *      3.锁和分布式锁性能的问题；
  *              如何在有锁的情况下提高分布式锁的性能？
  *

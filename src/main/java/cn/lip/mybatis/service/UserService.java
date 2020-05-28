@@ -7,5 +7,6 @@ import cn.lip.mybatis.bean.TbUser;
 
 public interface UserService {
 	List<TbUser> getAll();
-	Student getStudentByIdAndName(Integer id, String name);
+	Student getStudentByIdAndName(Integer id, String name) throws Exception;
+	Student getStudentByIdAndName_lockByRedisson(Integer id, String name);
 }

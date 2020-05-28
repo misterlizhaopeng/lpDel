@@ -60,3 +60,8 @@ per:
     - cc
     - d
 debug: false # 查看哪些自动配置类生效
+
+bloom:
+  filter:
+    expectedInsertions: 1000
+    fpp: 0.001F
