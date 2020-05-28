@@ -6,6 +6,7 @@ import cn.lip.mybatis.application.MyCommandLineRunner;
 import cn.lip.mybatis.bean.ComponentTest;
 import cn.lip.mybatis.bean.Student;
 import cn.lip.mybatis.bean.TbUser;
+import cn.lip.mybatis.conf.RedisBloomFilter;
 import cn.lip.mybatis.listener.MyAppEvent;
 import cn.lip.mybatis.service.RedisLockService;
 import cn.lip.mybatis.service.UserRedPacketService;
@@ -21,6 +22,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +31,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.PostConstruct;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -90,14 +92,14 @@ public class App {
                     System.out.println(student);
                 }).start();
             }
-        }else if(id.equals("2")) {
+        } else if (id.equals("2")) {
             for (int j = 0; j < i; j++) {
                 new Thread(() -> {
                     Student student = userService.getStudentByIdAndName_lockByRedisson(2, "lp");
                     System.out.println(student);
                 }).start();
             }
-        }else {
+        } else {
             Student student = null;
             try {
                 student = userService.getStudentByIdAndName(2, "lp");
@@ -140,6 +142,26 @@ public class App {
 
     @Autowired
     private Redisson redisson;
+
+    @Autowired
+    private RedisBloomFilter redisBloomFilter;
+
+    @PostConstruct
+    public void init() {
+        System.out.println("------------------------------------>springbootapplication starter");
+        Set keys = redisTemplate.keys("*");
+
+        //        for (Object o : keys) {
+        //            System.out.println(o);
+        //
+        //        }
+        keys.forEach(a -> {
+            System.out.println("key--------------------------------->" + a);
+            redisBloomFilter.put(a.toString());
+        });
+
+
+    }
 
 
     // redisson 测试分布式锁；

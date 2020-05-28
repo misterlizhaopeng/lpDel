@@ -26,12 +26,12 @@ import java.util.List;
 
 2：将key值hash后，根据hash函数的数量，计算出这个key的不同的下标数组，用于匹配key值。
 
-3：遍历key值的下标，将相同的值（bf:hilite）根据下标的值，转存为对应下标值长度的二进制数存入bitmap。
+3：遍历key值的下标，将相同的值（bf:LP_BL）根据下标的值，转存为对应下标值长度的二进制数存入bitmap。
 
 4：判断时，将key按相同方式转换为下标数组，通过 getBit（）方法判断是否存在。
 
-看代码也可以知道hash函数数量numHashFunctions与预计插入量expectedInsertions无关，与可接受的错误率fpp成反比，
-bit数组长度numBits与预计插入量expectedInsertions成正比，与可接受的错误率fpp成反比。
+看代码也可以知道 hash函数数量 numHashFunctions 与预计插入量 expectedInsertions 无关，与 可接受的错误率fpp 成反比，
+bit数组长度numBits与预计插入量 expectedInsertions 成正比，与 可接受的错误率fpp 成反比。
 
 */
 
@@ -39,6 +39,7 @@ bit数组长度numBits与预计插入量expectedInsertions成正比，与可接�
 @Component
 public class RedisBloomFilter {
 
+    private static final String blBitMapKey = "LP_BL";
     @Autowired
     private RedisTemplate redisTemplate;
 
@@ -50,19 +51,19 @@ public class RedisBloomFilter {
     //bit数组长度
     private long numBits;
     //hash函数数量
-    private int numHashFunctions ;
+    private int numHashFunctions;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         this.numBits = optimalNumOfBits(expectedInsertions, fpp);
         this.numHashFunctions = optimalNumOfHashFunctions(expectedInsertions, numBits);
     }
- 
+
     //计算hash函数个数
     private int optimalNumOfHashFunctions(long n, long m) {
         return Math.max(1, (int) Math.round((double) m / n * Math.log(2)));
     }
- 
+
     //计算bit数组长度
     private long optimalNumOfBits(long n, double p) {
         if (p == 0) {
@@ -70,20 +71,20 @@ public class RedisBloomFilter {
         }
         return (long) (-n * Math.log(p) / (Math.log(2) * Math.log(2)));
     }
- 
+
     /**
      * 判断keys是否存在于集合
      */
     public boolean isExist(String key) {
         long[] indexs = getIndexs(key);
         List list = redisTemplate.executePipelined(new RedisCallback<Object>() {
- 
+
             @Nullable
             @Override
             public Object doInRedis(RedisConnection redisConnection) throws DataAccessException {
                 redisConnection.openPipeline();
                 for (long index : indexs) {
-                    redisConnection.getBit("bf:hilite".getBytes(), index);
+                    redisConnection.getBit(("bf:" + blBitMapKey).getBytes(), index);
                 }
                 redisConnection.close();
                 return null;
@@ -91,27 +92,27 @@ public class RedisBloomFilter {
         });
         return !list.contains(false);
     }
- 
+
     /**
      * 将key存入redis bitmap
      */
     public void put(String key) {
         long[] indexs = getIndexs(key);
         redisTemplate.executePipelined(new RedisCallback<Object>() {
- 
+
             @Nullable
             @Override
             public Object doInRedis(RedisConnection redisConnection) throws DataAccessException {
                 redisConnection.openPipeline();
                 for (long index : indexs) {
-                    redisConnection.setBit("bf:hilite".getBytes(),index,true);
+                    redisConnection.setBit(("bf:" + blBitMapKey).getBytes(), index, true);
                 }
                 redisConnection.close();
                 return null;
             }
         });
     }
- 
+
     /**
      * 根据key获取bitmap下标
      */
@@ -128,7 +129,7 @@ public class RedisBloomFilter {
         }
         return result;
     }
- 
+
     /**
      * 获取一个hash值
      */
@@ -136,8 +137,6 @@ public class RedisBloomFilter {
         Charset charset = Charset.forName("UTF-8");
         return Hashing.murmur3_128().hashObject(key, Funnels.stringFunnel(charset)).asLong();
     }
-
-
 
 
     public long getExpectedInsertions() {

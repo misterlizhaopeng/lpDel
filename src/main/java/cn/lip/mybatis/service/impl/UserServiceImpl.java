@@ -2,6 +2,7 @@ package cn.lip.mybatis.service.impl;
 
 import cn.lip.mybatis.bean.Student;
 import cn.lip.mybatis.bean.TbUser;
+import cn.lip.mybatis.conf.RedisBloomFilter;
 import cn.lip.mybatis.dao.UserDao;
 import cn.lip.mybatis.service.RedisLockService;
 import cn.lip.mybatis.service.UserService;
@@ -29,6 +30,8 @@ public class UserServiceImpl implements UserService {
     private RedisLockService redisLockService;
     @Autowired
     private Redisson redisson;
+    @Autowired
+    private RedisBloomFilter redisBloomFilter;
 
     @Override
     public List<TbUser> getAll() {
@@ -108,6 +111,19 @@ public class UserServiceImpl implements UserService {
         Student studentTmp = null;
 
         String key = "student:id:" + id;
+        //布隆过滤器先对当前的key判断一下，看看当前的key是否在过滤器里面
+        //注意：使用布隆过滤器之前，要把要找的所有的key的hash位值，添加到bitmap中；
+        //      在添加修改数据的时候，也要把要通过redis查询的key添加到bitmap中；
+        boolean exist = redisBloomFilter.isExist(key);
+        if (!exist)
+        {
+            Student student = new Student();
+            student.setId(-1);
+            student.setAge(-1);
+            student.setName("你找的数据不存在");
+            return student;
+        }
+
         Object o = redisTemplate.opsForHash().get(key, String.valueOf(id));
         if (o != null) {
             System.out.println("data from------------------------------->redis");
@@ -124,6 +140,7 @@ public class UserServiceImpl implements UserService {
             } else {
                 studentTmp = a.getStudentByIdAndName(id, name);
                 redisTemplate.opsForHash().put(key, String.valueOf(id), studentTmp); //.set(key, studentTmp);
+                redisBloomFilter.put(key);
                 System.out.println("data from------------------------------------->mysql");
             }
 
