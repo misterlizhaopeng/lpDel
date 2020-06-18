@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
  *      1.锁的过期时间小于业务执行时间，也就是业务没有执行完成，锁过期了，这样一个业务线程没有执行完，另一个业务线程又启动了业务执行，这样会造成数据不一致的问题，so，如何设置锁的过期时间更合理？
  *           如果把锁的过期时间设置太长,不太好，因为业务抛出异常，下一个线程再次获取锁需要交长的等待，太短可能会产生上面所说的问题；so，锁的过期时间太长太短都不好控制；
  *
- *           redisson 解决方案有个姐姐过期时间的问题，先把当前锁的过期时间默认为设置为30s，对锁设置过期时间之后，然后生成一个后台进程，会在锁的过期时间1/3的时间之后，判断当前线程在执行
+ *           redisson 解决方案有个解决过期时间的问题，先把当前锁的过期时间默认为设置为30s，对锁设置过期时间之后，然后生成一个后台进程，会在锁的过期时间1/3的时间之后，判断当前线程在执行
  *           业务代码中是否持有当前的锁,如果是，则再设置指定的过期时间以延长过期时间，以保证分布式锁的过期时间永远大于业务代码的执行时间，进而保证了多线程下业务被串行访问；
  *
  *      redis服务器方面的问题：
@@ -60,10 +60,10 @@ public class RedisLockServiceImpl implements RedisLockService {
             return true;
         }
 
-        //当锁过期，多线程下继续加锁- start
+        //当锁过期或者多线程下没有成功加锁的情况下，继续加锁- start
 
-        // （start-end 这段代码的作用很重要）,如果没有当前这段代码，当调用昂前lock成功之后，执行业务代码，
-        // 在释放锁之前执行业务代码报出了一个异常，其他的线程认为当前锁一直被占用不能获取锁，俗称死锁！
+        // （start-end 这段代码的作用很重要）,如果没有当前这段代码，当调用lock成功之后，执行业务代码，
+        // 在释放锁之前执行业务代码报出了一个异常，其他的线程认为当前锁一直被占用不能获取锁（也就是一直不能成功执行命令：setnx），俗称死锁！
 
         Object currentValue = redisTemplate.opsForValue().get(key);
         if (currentValue != null && Long.parseLong(currentValue.toString()) < System.currentTimeMillis()) {
@@ -73,7 +73,7 @@ public class RedisLockServiceImpl implements RedisLockService {
                 return true;// 表示加锁成功
             }
         }
-        //当锁过期，多线程下继续加锁 - end
+        //当锁过期或者多线程下没有成功加锁的情况下，继续加锁- start
         return false;
     }
 

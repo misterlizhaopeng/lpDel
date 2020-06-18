@@ -205,7 +205,7 @@ public class App {
         //
         //        }
 
-        long timeout = 30 * 1000;
+        long timeout = 30 * 1000;//30s 的超时时间
         long val = System.currentTimeMillis() + timeout;
         String lockK = "productKey";
         try {
