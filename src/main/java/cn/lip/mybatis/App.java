@@ -4,10 +4,12 @@ import cn.lip.mybatis.application.MyApplicationContextInitializer;
 import cn.lip.mybatis.application.MyApplicationRunner;
 import cn.lip.mybatis.application.MyCommandLineRunner;
 import cn.lip.mybatis.bean.ComponentTest;
+import cn.lip.mybatis.bean.Dept;
 import cn.lip.mybatis.bean.Student;
 import cn.lip.mybatis.bean.TbUser;
 import cn.lip.mybatis.conf.RedisBloomFilter;
 import cn.lip.mybatis.listener.MyAppEvent;
+import cn.lip.mybatis.service.DeptService;
 import cn.lip.mybatis.service.RedisLockService;
 import cn.lip.mybatis.service.UserRedPacketService;
 import cn.lip.mybatis.service.UserService;
@@ -26,6 +28,7 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,17 +44,38 @@ import java.util.concurrent.Executors;
  * Hello world!
  */
 //(scanBasePackages = {"cn.lip.mybatis"}, exclude = {cn.lip.mybatis.application.MyCommandLineRunner.class})
+    // VM   :  -verbose:class -Xmn2g -XX:SurvivorRatio=4
 @SpringBootApplication
 @ComponentScan(excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {MyCommandLineRunner.class, MyApplicationRunner.class})})
 @RestController
 @EnableAsync //开启异步调用
+@EnableScheduling // 开启定时器任务
 public class App {
 
 
     @Autowired
     private UserService userService;
+
     @Autowired
     private UserRedPacketService userRedPacketService;
+
+    @Autowired
+    private DeptService deptService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RedisLockService redisLockService;
+
+    @Autowired
+    private Redisson redisson;
+
+    @Autowired
+    private RedisBloomFilter redisBloomFilter;
+
+    private Dept dept;
+    private Student stud;
 
     public static void main(String[] args) {
 
@@ -114,6 +138,26 @@ public class App {
     }
 
 
+
+    @GetMapping("/testAddDept01")
+    public String testAddDept01(String id){
+        dept=new Dept();
+        dept.setDbsource("999");
+        dept.setDname("name-999");
+        deptService.addDept(dept);
+        return "add success-dept-only";
+    }
+
+    @GetMapping("/testAddDept")
+    public String testAddDept(String id){
+        stud=new Student();
+        stud.setName("090");
+        userService .addStudent(stud);
+
+        return "add success";
+    }
+
+
     @PostMapping("/grabRp")
     public Map<String, Object> postGrabRedPacket(Long redPacketId, Long userId) {
         //int result = userRedPacketService.grabRedPacket(redPacketId, userId);
@@ -134,17 +178,7 @@ public class App {
 
     private static Integer testData = 10;
 
-    @Autowired
-    private RedisTemplate redisTemplate;
 
-    @Autowired
-    private RedisLockService redisLockService;
-
-    @Autowired
-    private Redisson redisson;
-
-    @Autowired
-    private RedisBloomFilter redisBloomFilter;
 
     @PostConstruct
     public void init() {

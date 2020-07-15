@@ -27,7 +27,7 @@ public class RedisConfig {
         // 创建Jedis连接工厂
         JedisConnectionFactory connectionFactory = new JedisConnectionFactory(poolConfig);
         connectionFactory.setHostName("192.168.25.140");
-        connectionFactory.setPort(6380);
+        connectionFactory.setPort(6379);
         connectionFactory.setPassword("lp");
         // 调用后初始化方法，没有它将抛出异常，此处要注意，因为对象JedisConnectionFactory不是spring实例化，所以，此处要人为调用
         connectionFactory.afterPropertiesSet();
@@ -52,7 +52,7 @@ public class RedisConfig {
     public Redisson redissonClient() {
         Config config = new Config();
 
-        config.useSingleServer().setPassword("lp").setAddress("redis://192.168.25.140:6380").setDatabase(0);
+        config.useSingleServer().setPassword("lp").setAddress("redis://192.168.25.140:6379").setDatabase(0);
 //        config.useClusterServers()
 //                .setScanInterval(2000)
 //                .addNodeAddress("redis://192.168.25.140:7001", "redis://192.168.25.140:7001")

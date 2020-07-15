@@ -12,4 +12,5 @@ import java.util.List;
 public interface UserDao {
 	List<TbUser> getUsers();
 	public Student getStudentByIdAndName(@Param("id") int id, @Param("name") String name);
+	void addStudent(Student student);
 }

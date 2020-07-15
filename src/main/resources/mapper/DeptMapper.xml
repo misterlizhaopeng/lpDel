@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.lip.mybatis.dao.DeptDao">
+	<!--	void addDept(Dept dept); -->
+	<insert id="addDept" parameterType="cn.lip.mybatis.bean.Dept">
+		INSERT INTO dept ( dname,dbsource) VALUES ( #{dname},#{dbsource})
+	</insert>
+</mapper>

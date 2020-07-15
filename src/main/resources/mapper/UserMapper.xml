@@ -14,4 +14,9 @@ select id,name,age from student where id = '${id}' and name='${name}'
 	<select id="getStudentByIdAndName" resultType="stus" statementType="PREPARED">
 		 select id,name,age from student where id = #{id} and name=#{name}
 	  </select>
+
+	<!--void addStudent(Student student);-->
+	<select id="addStudent"  parameterType="cn.lip.mybatis.bean.Student">
+		 INSERT INTO student (name,age,deptid) VALUES(#{name},1,1)
+	  </select>
 </mapper>

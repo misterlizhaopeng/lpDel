@@ -1,9 +1,12 @@
 package cn.lip.mybatis.service.impl;
 
+import cn.lip.mybatis.bean.Dept;
 import cn.lip.mybatis.bean.Student;
 import cn.lip.mybatis.bean.TbUser;
 import cn.lip.mybatis.conf.RedisBloomFilter;
+import cn.lip.mybatis.dao.DeptDao;
 import cn.lip.mybatis.dao.UserDao;
+import cn.lip.mybatis.service.DeptService;
 import cn.lip.mybatis.service.RedisLockService;
 import cn.lip.mybatis.service.UserService;
 import cn.lip.mybatis.util.SerializeUtils;
@@ -13,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import redis.clients.jedis.Jedis;
 
 import java.util.List;
@@ -21,7 +26,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    private UserDao a;
+    private UserDao userDao;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -36,7 +41,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<TbUser> getAll() {
         System.err.println("getAll-----------------------");
-        return a.getUsers();
+        return userDao.getUsers();
     }
 
     //高并发的情况下，如果redis缓存没有数据，那么大部分的请求都会去请求mysql，造成缓存被【击穿】的现象，此方法用分布式锁来解决
@@ -81,7 +86,7 @@ public class UserServiceImpl implements UserService {
                 System.out.println("data from------------------------------->redis");
                 studentTmp = (Student) o1;
             } else {
-                studentTmp = a.getStudentByIdAndName(id, name);
+                studentTmp = userDao.getStudentByIdAndName(id, name);
 //                redisTemplate.opsForHash().put(key, String.valueOf(id), studentTmp); //.set(key, studentTmp);
 //                redisTemplate.expire(key, 10, TimeUnit.SECONDS);
                 int _timeout = 100;
@@ -115,8 +120,7 @@ public class UserServiceImpl implements UserService {
         //注意：使用布隆过滤器之前，要把要找的所有的key的hash位值，添加到bitmap中；
         //      在添加修改数据的时候，也要把要通过redis查询的key添加到bitmap中；
         boolean exist = redisBloomFilter.isExist(key);
-        if (!exist)
-        {
+        if (!exist) {
             Student student = new Student();
             student.setId(-1);
             student.setAge(-1);
@@ -138,7 +142,7 @@ public class UserServiceImpl implements UserService {
                 System.out.println("data from------------------------------->redis second done");
                 studentTmp = (Student) o1;
             } else {
-                studentTmp = a.getStudentByIdAndName(id, name);
+                studentTmp = userDao.getStudentByIdAndName(id, name);
                 redisTemplate.opsForHash().put(key, String.valueOf(id), studentTmp); //.set(key, studentTmp);
                 redisBloomFilter.put(key);
                 System.out.println("data from------------------------------------->mysql");
@@ -150,6 +154,28 @@ public class UserServiceImpl implements UserService {
         }
 
         return studentTmp;
+
+    }
+
+    @Autowired
+    private DeptService deptService;
+
+    @Transactional
+    @Override
+    public void addStudent(Student student) {
+        try {
+            userDao.addStudent(student);
+            int i = 1 / 0;
+            System.out.println("-------------------------------------> xxxxxxxxxxxxxxxxxxxx");
+        } catch (Exception e) {
+
+            Dept dept = new Dept();
+            dept.setDbsource("999");
+            dept.setDname("name-999");
+            deptService.addDept(dept);
+
+            throw new RuntimeException(e.toString());
+        }
 
     }
 

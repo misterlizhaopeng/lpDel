@@ -12,22 +12,33 @@ spring:
     username: root
     password: root
     type: com.alibaba.druid.pool.DruidDataSource
-
-#  redis: # spring boot中引用 redis 步骤：1.pom:spring-boot-starter-data-redis,2.当前配置 ，然后就可以使用RedisTemplate对象了
+  #  redis: # spring boot中引用 redis 步骤：1.pom:spring-boot-starter-data-redis,2.当前配置 ，然后就可以使用RedisTemplate对象了
   #这种方式不太好用，我直接使用的是注解配置的RedisTemplate
-#    url: 192.168.25.34
-#    port: 6380
-#    pool:
-#      max-active: 2000 #连接池最大连接数（使用负值表示没有限制）
-#      max-wait: 10000 #连接池最大阻塞等待时间（使用负值表示没有限制）
-#      min-idle: 50 #连接池中的最小空闲连接
-#      max-idle: 100 #连接池中的最大空闲连接
-#    timeout: 10000 #连接超时时间（毫秒）
-#    password: lp #redis的auth 密码
-#    database: 0
+  #    url: 192.168.25.34
+  #    port: 6380
+  #    pool:
+  #      max-active: 2000 #连接池最大连接数（使用负值表示没有限制）
+  #      max-wait: 10000 #连接池最大阻塞等待时间（使用负值表示没有限制）
+  #      min-idle: 50 #连接池中的最小空闲连接
+  #      max-idle: 100 #连接池中的最大空闲连接
+  #    timeout: 10000 #连接超时时间（毫秒）
+  #    password: lp #redis的auth 密码
+  #    database: 0
   resources:
     # 添加可以访问的目录 ，配置了该项，默认的/META-INF/resources、/resources、/public、/static下面的文件都不能正常访问了；配置了当前项，路径http://localhost:9998/lipp/d.html就可以被访问了；
     static-locations: classpath:/deflp/,classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/
+  rabbitmq:
+    host: 192.168.25.140
+    port: 5672
+    virtual-host: consu_definition
+    username: lisi
+    password: lisi
+    publisher-confirms: true #
+    publisher-returns: true  #
+    template:
+      mandatory: true  # 强制的;法定的;义务的;如果为true,那么mq会调用我们得retrunListener 来告诉我们业务系统 说该消息不能成功发送;该属性设置为false,那么不可达消息就会被 mq broker 给删除掉；
+    connection-timeout: 1000000
+
 #context:
 #  initializer:
 banner:
