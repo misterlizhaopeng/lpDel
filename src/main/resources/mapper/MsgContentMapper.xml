@@ -28,7 +28,9 @@
     </update>
 
     <select id="qryNeedRetryMsg" resultType="cn.lip.mybatis.bean.MessageContent" parameterType="map">
-        select * from message_content where TIMESTAMPDIFF(SECOND,create_time,SYSDATE())>#{timeDiff} and msg_status!=#{msgStatus} and
+        select msg_id as msgId, create_time as createTime, update_time as updateTime, msg_status as msgStatus, exchange as exchange,
+        routing_key as routingKey, err_cause as errCause, order_no as orderNo, max_retry as maxRetry, current_retry as currentRetry, product_no as productNo
+         from message_content where TIMESTAMPDIFF(SECOND,create_time,SYSDATE())>#{timeDiff} and msg_status!=#{msgStatus} and
         <![CDATA[
            current_retry<max_retry
         ]]>

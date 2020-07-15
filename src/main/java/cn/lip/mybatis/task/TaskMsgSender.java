@@ -33,7 +33,7 @@ public class TaskMsgSender {
         List<MessageContent> messageContentList = msgContentMapper.qryNeedRetryMsg(3, MqConst.TIME_DIFF);
 
         for (MessageContent messageContent : messageContentList) {
-            if (messageContent.getMaxRetry() > messageContent.getCurrentRetry()) {
+            if (messageContent != null && (messageContent.getMaxRetry() > messageContent.getCurrentRetry())) {
                 MsgTxtBo msgTxtBo = new MsgTxtBo();
                 msgTxtBo.setMsgId(messageContent.getMsgId());
                 msgTxtBo.setProductNo(messageContent.getProductNo());

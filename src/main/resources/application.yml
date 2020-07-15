@@ -5,6 +5,8 @@ mybatis:
   mapper-locations: classpath:mapper/*Mapper.xml #mybatis-mapper的配置文件
   config-location: classpath:mapper/config/mybatis-config.xml #mybatis 配置文件
   type-aliases-package: cn.lip.mybatis.bean # 定义包下类的别名
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  #在控制台上打印sql语句
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/test
@@ -28,17 +30,26 @@ spring:
     # 添加可以访问的目录 ，配置了该项，默认的/META-INF/resources、/resources、/public、/static下面的文件都不能正常访问了；配置了当前项，路径http://localhost:9998/lipp/d.html就可以被访问了；
     static-locations: classpath:/deflp/,classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/
   rabbitmq:
+    # 生产者、消费者公共配置
     host: 192.168.25.140
     port: 5672
     virtual-host: consu_definition
     username: lisi
     password: lisi
+    # 生产者主要配置 ；
     publisher-confirms: true #
     publisher-returns: true  #
     template:
       mandatory: true  # 强制的;法定的;义务的;如果为true,那么mq会调用我们得retrunListener 来告诉我们业务系统 说该消息不能成功发送;该属性设置为false,那么不可达消息就会被 mq broker 给删除掉；
-    connection-timeout: 1000000
-
+    connection-timeout: 1000000   # 连接超时时间，zero for infinite ， 0 表示无限时间；
+    # 消费者监听配置 ；
+    listener:
+      simple:
+        concurrency: 5
+        max-concurrency: 10
+        acknowledge-mode: manual  # 表示非自动消息ack，就是人为的消息确认 ；
+        prefetch: 1  # 表示消费端一次接受一个消息
+        default-requeue-rejected: false
 #context:
 #  initializer:
 banner:
