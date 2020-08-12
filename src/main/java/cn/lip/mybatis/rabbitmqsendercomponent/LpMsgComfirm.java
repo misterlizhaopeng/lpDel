@@ -37,8 +37,7 @@ public class LpMsgComfirm implements RabbitTemplate.ConfirmCallback {
      */
     private void updateMsgStatusWithAck(String msgId) {
         MessageContent messageContent = builderUpdateContent(msgId);
-        //messageContent.setMsgStatus(MsgStatusEnum.SENDING_SUCCESS.getCode());
-        messageContent.setMsgStatus(1);
+        messageContent.setMsgStatus(MsgStatusEnum.SENDING_SUCCESS.getCode());
         msgContentMapper.updateMsgStatus(messageContent);
     }
 
@@ -46,8 +45,7 @@ public class LpMsgComfirm implements RabbitTemplate.ConfirmCallback {
 
         MessageContent messageContent = builderUpdateContent(msgId);
 
-        //messageContent.setMsgStatus(MsgStatusEnum.SENDING_FAIL.getCode());
-        messageContent.setMsgStatus(2);
+        messageContent.setMsgStatus(MsgStatusEnum.SENDING_FAIL.getCode());
         messageContent.setErrCause(cause);
         msgContentMapper.updateMsgStatus(messageContent);
     }

@@ -79,7 +79,7 @@ public class ProductDefiConsumer {
 
 
 
-  //消费者进行消费消息消费消息
+  //消费者进行消费消息
     //@RabbitListener(queues = {ORDER_TO_PRODUCT_QUEUE_NAME})
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = MqConst.ORDER_TO_PRODUCT_QUEUE_NAME, durable = "true"),
@@ -101,7 +101,7 @@ public class ProductDefiConsumer {
             //log.info("消费消息:{}", msgTxtBo);
             System.out.println("消费消息:" + msgTxtBo);
             try {
-                //更新消息表也业务表
+                //更新消息表、业务表
                 productService.updateProductStore(msgTxtBo);
                 //消息签收
                 //System.out.println(1 / 0);// 模拟网络抖动
@@ -118,8 +118,7 @@ public class ProductDefiConsumer {
 
                 //更新消息表状态
                 MessageContent messageContent = new MessageContent();
-                //messageContent.setMsgStatus(MsgStatusEnum.CONSUMER_FAIL.getCode());
-                messageContent.setMsgStatus(4);
+                messageContent.setMsgStatus(MsgStatusEnum.CONSUMER_FAIL.getCode());
                 messageContent.setUpdateTime(new Date());
                 messageContent.setErrCause(e.getMessage());
                 messageContent.setMsgId(msgTxtBo.getMsgId());

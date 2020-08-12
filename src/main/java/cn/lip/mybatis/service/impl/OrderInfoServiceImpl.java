@@ -74,8 +74,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         messageContent.setUpdateTime(new Date());
         messageContent.setExchange(MqConst.ORDER_TO_PRODUCT_EXCHANGE_NAME);
         messageContent.setRoutingKey(MqConst.ORDER_TO_PRODUCT_QUEUE_NAME);
-        //messageContent.setMsgStatus(MsgStatusEnum.SENDING.getCode());
-        messageContent.setMsgStatus(0);
+        messageContent.setMsgStatus(MsgStatusEnum.SENDING.getCode());
         messageContent.setOrderNo(orderNo);
         messageContent.setProductNo(productNo);
         messageContent.setMaxRetry(MqConst.MSG_RETRY_COUNT);

@@ -32,8 +32,7 @@ public class LpMsgRetrunListener implements RabbitTemplate.ReturnCallback {
             MessageContent messageContent = new MessageContent();
             messageContent.setErrCause(replyText);
             messageContent.setUpdateTime(new Date());
-            //messageContent.setMsgStatus(MsgStatusEnum.SENDING_FAIL.getCode());
-            messageContent.setMsgStatus(2);
+            messageContent.setMsgStatus(MsgStatusEnum.SENDING_FAIL.getCode());
             messageContent.setMsgId(msgTxtBo.getMsgId());
             // 更新消息表
             msgContentMapper.updateMsgStatus(messageContent);

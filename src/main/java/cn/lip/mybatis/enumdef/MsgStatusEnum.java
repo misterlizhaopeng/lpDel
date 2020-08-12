@@ -18,6 +18,21 @@ public enum MsgStatusEnum {
     private String msgStatus;
 
 
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+
+    public String getMsgStatus() {
+        return msgStatus;
+    }
+
+    public void setMsgStatus(String msgStatus) {
+        this.msgStatus = msgStatus;
+    }
 
     MsgStatusEnum(Integer code, String msgStatus) {
         this.code = code;

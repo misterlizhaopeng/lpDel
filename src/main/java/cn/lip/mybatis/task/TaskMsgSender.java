@@ -28,7 +28,7 @@ public class TaskMsgSender {
     @Scheduled(initialDelay = 5000, fixedDelay = 10000)
     public void retrySend() {
         System.out.println("-----------------------------");
-        // 遍历 查找大于30s没有成功发送的记录；
+        // 遍历 查找大于 30s 没有成功发送的记录；
         //List<MessageContent> messageContentList = msgContentMapper.qryNeedRetryMsg(MsgStatusEnum.CONSUMER_SUCCESS.getCode(), MqConst.TIME_DIFF);
         List<MessageContent> messageContentList = msgContentMapper.qryNeedRetryMsg(3, MqConst.TIME_DIFF);
 
@@ -45,7 +45,6 @@ public class TaskMsgSender {
                 //log.warn("消息:{}以及达到最大重试次数",messageContent);
                 System.out.println("消息:" + messageContent + "以及达到最大重试次数");
             }
-
         }
     }
 }
