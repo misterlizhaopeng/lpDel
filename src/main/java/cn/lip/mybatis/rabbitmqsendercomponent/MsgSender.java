@@ -26,6 +26,7 @@ public class MsgSender implements InitializingBean {
         rabbitTemplate.setReturnCallback(lpMsgRetrunListener);
         //设置消息转换器
         Jackson2JsonMessageConverter jackson2JsonMessageConverter = new Jackson2JsonMessageConverter();
+
         rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter);
     }
 

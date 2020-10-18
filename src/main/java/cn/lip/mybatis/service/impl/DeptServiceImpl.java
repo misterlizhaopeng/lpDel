@@ -28,6 +28,5 @@ public class DeptServiceImpl implements DeptService {
             deptDao.addDept(dept);
             throw new RuntimeException(e.toString());
         }
-
     }
 }

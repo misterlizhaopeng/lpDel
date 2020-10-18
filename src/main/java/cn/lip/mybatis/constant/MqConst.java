@@ -1,6 +1,6 @@
 package cn.lip.mybatis.constant;
 
-public class MqConst {
+public interface MqConst {
 
     /**交换机名称*/
     public static final String ORDER_TO_PRODUCT_EXCHANGE_NAME = "order-to-product.exchange";
